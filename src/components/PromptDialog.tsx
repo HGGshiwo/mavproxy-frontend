@@ -75,14 +75,19 @@ export function prompt(options: PromptOptions): Promise<string | null> {
   // 用 createRoot
   const root = ReactDOM.createRoot(container);
 
-  return new Promise<string | null>((resolve) => {
+  return new Promise<string | null>((resolve, reject) => {
     const handleConfirm = (value: string) => {
       cleanup();
-      resolve(value);
+      if(value == "") {
+        reject()
+      }
+      else {
+        resolve(value);
+      }
     };
     const handleCancel = () => {
       cleanup();
-      resolve(null);
+      reject();
     };
 
     function cleanup() {

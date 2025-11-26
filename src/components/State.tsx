@@ -4,11 +4,29 @@ import { useWS } from "../hooks/useWs"
 const keyMap: Record<string, any> = {
   "connected": {
     name: "连接状态",
-    value: (v: boolean) => v ? "连接" : "断开"
+    value: (v: boolean) => v ? "已连接" : "断开"
+  },
+  "link_down": {
+    name: "连接状态",
+    value: (v: boolean) => v ? "断开" : "已连接"
+  },
+  "arm": {
+    name: "解锁",
+    value: (v: number) => v > 0 ? "已解锁" : "未解锁"
+  },
+  "rel_alt": {
+    name: "相对高度",
+    value: (v: number) => v.toFixed(2)
   }
 }
 
-const priorityOrder = ['connecetd'];
+const priorityOrder = ['connected', "link_down", "arm", "mode", "rel_alt",];
+const exclude = ["radio_noise", "radio_remnoise", "radio_rssi", "type", "radio_error", "mission_data", "mission_num",
+  "vehicle_agl", "wp_total", "wp_cur", "wp_bearing", "wp_distance", "wp_etr", "link_lost", "link_count", "compid",
+  "gps2_error", "gps2_fix_type", "gps2_hdop", "gps2_nsats", "lat", "lon", "sysid", "ekf_error", "error", "flight_time",
+  "gps_error", "params_receive", "params_total", "aspd_error", "alt_error", "battery_remain", "battery_voltage", "agl_alt",
+  "wind_direction", "wind_speed", "throttle", "air_speed", "event", "vfr_hud_heading"
+]
 
 const mySort = (arr: any[]) => arr.sort((a, b) => {
   const indexA = priorityOrder.indexOf(a);
@@ -30,19 +48,23 @@ const mySort = (arr: any[]) => arr.sort((a, b) => {
 });
 
 export default function State() {
-  const [state, setState] = useState<Record<string, any>>({
-    "connected": false
-  })
+  const [state, setState] = useState<Record<string, any>>({ connected: false })
+  // setState({conncected: false})
   const { onMessage } = useWS()
   useEffect(() => {
-    onMessage((event) => {
-      setState({ ...state, ...event.data })
+    onMessage((data) => {
+      setState(prev => {
+        if (data.link_down != undefined) {
+          delete prev["connected"]
+        }
+        return { ...prev, ...data }
+      })
     })
   }, [])
 
   return (
-    <div className="stats shadow flex flex-row w-full bg-base-100 rounded-lg p-4">
-      {mySort(Object.keys(state)).map(key => {
+    <div className="stats shadow flex flex-row bg-base-100 rounded-lg p-4 flex-wrap">
+      {mySort(Object.keys(state).filter(k => !exclude.includes(k))).map(key => {
         const kv = keyMap[key]
         let value = state[key]
         if (kv) {
@@ -50,12 +72,23 @@ export default function State() {
           value = kv.value(value)
         }
         else {
-          value = typeof value == "number" ? value.toFixed(2) : value.toString()
+          if (typeof value == "number") {
+            value = value.toFixed(2)
+          }
+          else if (Array.isArray(value) && value.length == 0) {
+            value = "No Data"
+          }
+          else if (value == null) {
+            value = "No Data"
+          }
+          else {
+            value = value.toString()
+          }
         }
         return (
-          <div className="stat">
+          <div className="stat w-fit">
             <div className="stat-title">{key}</div>
-            <div className="stat-value">{value}</div>
+            <div className="stat-value" style={{ fontSize: "1.5rem" }}>{value}</div>
           </div>
         )
       })}

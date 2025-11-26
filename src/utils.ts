@@ -1,15 +1,16 @@
 import { Toast } from "./components/Toast";
 
-function parseURL(url: string) {
+function parseURL(url: string, ws=false) {
   if (import.meta.env.MODE === 'development') {
-    url = `http://localhost:8000${url}`
+    const protocal = ws ? "ws" : "http"
+    url = `${protocal}://localhost:8000${url}`
   } else if (import.meta.env.MODE === 'production') {
     // 生产环境
   }
   return url
 }
 
-function postJSON(url: string, data: any = {}) {
+function postJSON(url: string, data: any = {}, verbose=false) {
   url = parseURL(url)
   const options = {
     method: "POST",
@@ -19,18 +20,22 @@ function postJSON(url: string, data: any = {}) {
     body: JSON.stringify(data), // Convert the data object to a JSON string
   };
 
-  return fetch(url, options).then(res => res.json());
+  const res = fetch(url, options).then(res => res.json());
+  if(! verbose) return res
+  res.then(handleRes, err=>Toast.error(err))
 };
 
-function getJSON(url: string) {
+function getJSON(url: string, verbose=false) {
   url = parseURL(url)
-  return fetch(url).then(res => res.json())
+  const res = fetch(url).then(res => res.json())
+  if(! verbose) return res
+  res.then(handleRes, err=>Toast.error(err))
 }
 
 const handleRes = (res: any) => {
   let data;
-  const toast = res["status"] === "error" ? Toast.error : Toast.info
-  if (res["detail"] != undefined) {
+  const toast = res["status"] === "success" ? Toast.info : Toast.error
+  if (res["detail"]) {
     data = res["detail"]
   }
   else {
@@ -43,15 +48,13 @@ const handleRes = (res: any) => {
 }
 
 let setMode = (mode: string) => {
-  postJSON(`/set_mode`, { mode })
-    .then(handleRes, err => Toast.error(err))
+  postJSON(`/set_mode`, { mode }, true)
 }
 
 function sendWp(wp: string | null, type: "return" | "land") {
   if (wp == null) return;
   wp = wp.replace(/[^0-9\[\]\,\.]/g, "");
-  postJSON(`/${type}`, { waypoint: JSON.parse(wp) })
-    .then(handleRes, err => Toast.error(err))
+  postJSON(`/${type}`, { waypoint: JSON.parse(wp) }, true)
 }
 
-export { setMode, postJSON, getJSON, sendWp }
+export { setMode, postJSON, getJSON, sendWp, parseURL }
