@@ -53,6 +53,7 @@ export default function State() {
   const { onMessage } = useWS()
   useEffect(() => {
     onMessage((data) => {
+      if(data.type != "state") return
       setState(prev => {
         if (data.link_down != undefined) {
           delete prev["connected"]
