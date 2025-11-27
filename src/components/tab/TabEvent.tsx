@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
-import { useWS } from "../hooks/useWs";
+import { useWS } from "../../hooks/useWs";
 
-const WpTable = () => {
-  const columns = ["num", "command", "lat", "lon", "alt"]
-  const [mission, setMission] = useState([])
-  const [cur, setCur] = useState(0)
+const TabEvent = () => {
+  const columns = ["time", "type", "data"]
+  const [event, setEvent] = useState<any[]>([])
 
   const { onMessage } = useWS()
 
   useEffect(() => {
     onMessage((data: Record<string, any>) => {
-      if (data.mission_data) {
-        setMission(data.mission_data)
-        setCur(0)
-      }
-      if (data.type == "event" && data.event == "progress") {
-        setCur(data.cur)
+      if (data.type != "state") {
+        const d = new Date()
+        const fill0 = (n: any) => n.toString().padStart(2, '0')
+        const time = `${fill0(d.getHours())}:${fill0(d.getMinutes())}:${fill0(d.getSeconds())}`
+        setEvent(e => ([{ data: JSON.stringify(data), time, type: data.type }, ...e]))
       }
     })
   }, [])
@@ -31,7 +29,7 @@ const WpTable = () => {
           </tr>
         </thead>
         <tbody>
-          {mission.length == 0 ?
+          {event.length == 0 ?
             (<tr>
               <td colSpan={columns.length} className=" text-gray-400">
                 No data
@@ -39,13 +37,10 @@ const WpTable = () => {
             </tr>)
             :
             <>
-              {mission.map((row, idx) => (
-                <tr
-                  key={idx}
-                  className={cur === idx ? 'bg-base-200' : ''}
-                >
+              {event.map((row, idx) => (
+                <tr key={idx}>
                   {columns.map((col) => (
-                    col == "num" ?
+                    col == "time" ?
                       <td className="font-bold" key={col}>{row[col]}</td> :
                       <td key={col}>{row[col]}</td>
                   ))}
@@ -58,4 +53,4 @@ const WpTable = () => {
   );
 };
 
-export default WpTable;
+export default TabEvent;

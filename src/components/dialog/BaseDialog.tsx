@@ -1,34 +1,38 @@
 // PromptDialog.tsx
 import React, { useEffect, useRef, useState } from 'react';
-import ReactDOM from 'react-dom/client'; // 注意这里
+import type { ReactNode } from 'react';
+import ReactDOM from 'react-dom/client';
+
 
 type PromptOptions = {
   title?: string;
-  message?: string;
-  defaultValue?: string;
+  message?: any;
+  defaultValue?: any;
+  children: Record<string, (value: any, onChange: (v: any) => void, inputRef: React.Ref<any>) => ReactNode>;
 };
 
 type PromptDialogProps = PromptOptions & {
   open: boolean;
-  onConfirm: (value: string) => void;
+  onConfirm: (value: any) => void;
   onCancel: () => void;
 };
 
-const PromptDialog: React.FC<PromptDialogProps> = ({
+const BaseDialog: React.FC<PromptDialogProps> = ({
   open,
   title = '提示',
   message = '',
-  defaultValue = '',
+  defaultValue = {},
+  children,
   onConfirm,
   onCancel,
 }) => {
   const [value, setValue] = useState(defaultValue);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<any>(null);
 
   useEffect(() => {
     if (open) {
-      setValue(defaultValue ?? '');
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setValue(defaultValue);
+      setTimeout(() => inputRef.current?.focus && inputRef.current?.focus(), 100);
     }
   }, [open, defaultValue]);
 
@@ -39,16 +43,14 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
       <div className="bg-white rounded-lg shadow-lg w-80 p-6">
         <h2 className="text-lg font-bold mb-2">{title}</h2>
         <p className="mb-4 text-gray-700">{message}</p>
-        <input
-          ref={inputRef}
-          className="border rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') onConfirm(value);
-            if (e.key === 'Escape') onCancel();
-          }}
-        />
+        <div className="mb-4">
+          {
+            Object.entries(children).map(([key, func], i) => {
+              const ref = i == 0 ? inputRef : null;
+              return func(value[key], newV => setValue((v: any) => ({ ...v, [key]: newV })), ref)
+            })
+          }
+        </div>
         <div className="flex justify-end space-x-2">
           <button
             className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
@@ -68,20 +70,19 @@ const PromptDialog: React.FC<PromptDialogProps> = ({
   );
 };
 
-export function prompt(options: PromptOptions): Promise<string | null> {
+
+
+function openPrompt(options: PromptOptions): Promise<any> {
   const container = document.createElement('div');
   document.body.appendChild(container);
-
-  // 用 createRoot
   const root = ReactDOM.createRoot(container);
 
-  return new Promise<string | null>((resolve, reject) => {
-    const handleConfirm = (value: string) => {
+  return new Promise<any>((resolve, reject) => {
+    const handleConfirm = (value: any) => {
       cleanup();
-      if(value == "") {
-        reject()
-      }
-      else {
+      if (value === "") {
+        reject();
+      } else {
         resolve(value);
       }
     };
@@ -96,7 +97,7 @@ export function prompt(options: PromptOptions): Promise<string | null> {
     }
 
     root.render(
-      <PromptDialog
+      <BaseDialog
         open={true}
         {...options}
         onConfirm={handleConfirm}
@@ -105,3 +106,5 @@ export function prompt(options: PromptOptions): Promise<string | null> {
     );
   });
 }
+
+export { openPrompt, BaseDialog };

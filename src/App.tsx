@@ -1,14 +1,14 @@
 import { useEffect } from "react"
 import Button from "./components/Button"
 import { useWS } from "./hooks/useWs"
-import { prompt } from "./components/PromptDialog"
+import prompt from "./components/dialog/PromptDialog"
 import { postJSON, getJSON, sendWp, setMode, parseURL } from "./utils"
 import { ToastContainer } from "./components/Toast"
 import State from "./components/State"
-import WpTable from "./components/TabWp"
+import WpTable from "./components/tab/TabWp"
 import { showPipVideo } from "./components/Video"
-import { openParamsModal } from "./components/ParamModel"
-import TabEvent from "./components/TabEvent"
+import { openParamsModal } from "./components/ParamModal"
+import TabEvent from "./components/tab/TabEvent"
 
 
 function App() {
@@ -33,6 +33,7 @@ function App() {
     { click: () => prompt({ message: "输入前缀" }).then(res => res && postJSON("/start_record", { bag_name: res }, true)), text: "开始录制" },
     { click: () => postJSON("/stop_record", {}, true), text: "结束录制" },
     { click: () => openParamsModal(), text: "设置参数" },
+    { click: () => openParamsModal(), text: "节点开关" },
     { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" }
   ]
 
