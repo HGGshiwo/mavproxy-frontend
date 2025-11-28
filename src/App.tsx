@@ -9,7 +9,8 @@ import WpTable from "./components/tab/TabWp"
 import { showPipVideo } from "./components/Video"
 import { openParamsModal } from "./components/ParamModal"
 import TabEvent from "./components/tab/TabEvent"
-
+import promptNode from "./components/dialog/NodeDialog"
+import { takeoff } from "./utils"
 
 function App() {
   const { send, connect } = useWS()
@@ -20,7 +21,7 @@ function App() {
 
   const buttonConfig = [
     { click: () => prompt({ message: "输入地面站命令" }).then(res => send(res)), text: "地面站命令" },
-    { click: () => prompt({ message: "输入起飞高度" }).then(alt => postJSON('/takeoff', { alt }, true)), text: "起飞" },
+    { click: () => prompt({ message: "输入起飞高度" }).then(alt => takeoff(alt)), text: "起飞" },
     { click: () => setMode('RTL'), text: "返航" },
     { click: () => setMode('LAND'), text: "降落" },
     { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "return")), text: "返航(可加航点)" },
@@ -33,13 +34,13 @@ function App() {
     { click: () => prompt({ message: "输入前缀" }).then(res => res && postJSON("/start_record", { bag_name: res }, true)), text: "开始录制" },
     { click: () => postJSON("/stop_record", {}, true), text: "结束录制" },
     { click: () => openParamsModal(), text: "设置参数" },
-    { click: () => openParamsModal(), text: "节点开关" },
-    { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" }
+    { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" },
+    { click: () => promptNode({ message: "节点控制" }), text: "节点控制" }
   ]
 
   const tabConfig = [
     { comp: <WpTable />, name: "航点数据" },
-    { comp: <TabEvent />, name: "事件浏览"}
+    { comp: <TabEvent />, name: "事件浏览" }
   ]
   return (
     <>
@@ -58,7 +59,7 @@ function App() {
             {tabConfig.map(({ comp, name }, i) => {
               return (
                 <>
-                  <input type="radio" name="my_tabs_2" className="tab text-xl" aria-label={name} defaultChecked={i==0}/>
+                  <input type="radio" name="my_tabs_2" className="tab text-xl" aria-label={name} defaultChecked={i == 0} />
                   <div className="tab-content border-base-300 bg-base-100 p-10">
                     {comp}
                   </div>

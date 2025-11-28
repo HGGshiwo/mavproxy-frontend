@@ -1,16 +1,18 @@
 import { Toast } from "./components/Toast";
+// const base_url = "localhost:8000"
+const base_url = "192.168.1.198:8000"
 
-function parseURL(url: string, ws=false) {
+export function parseURL(url: string, ws=false) {
   if (import.meta.env.MODE === 'development') {
     const protocal = ws ? "ws" : "http"
-    url = `${protocal}://localhost:8000${url}`
+    url = `${protocal}://${base_url}${url}`
   } else if (import.meta.env.MODE === 'production') {
     // 生产环境
   }
   return url
 }
 
-function postJSON(url: string, data: any = {}, verbose=false) {
+export function postJSON(url: string, data: any = {}, verbose=false) {
   url = parseURL(url)
   const options = {
     method: "POST",
@@ -25,7 +27,7 @@ function postJSON(url: string, data: any = {}, verbose=false) {
   res.then(handleRes, err=>Toast.error(err))
 };
 
-function getJSON(url: string, verbose=false) {
+export function getJSON(url: string, verbose=false) {
   url = parseURL(url)
   const res = fetch(url).then(res => res.json())
   if(! verbose) return res
@@ -47,14 +49,23 @@ const handleRes = (res: any) => {
   toast(data)
 }
 
-let setMode = (mode: string) => {
+export function setMode (mode: string) {
   postJSON(`/set_mode`, { mode }, true)
 }
 
-function sendWp(wp: string | null, type: "return" | "land") {
+export function sendWp(wp: string | null, type: "return" | "land") {
   if (wp == null) return;
   wp = wp.replace(/[^0-9\[\]\,\.]/g, "");
   postJSON(`/${type}`, { waypoint: JSON.parse(wp) }, true)
 }
 
-export { setMode, postJSON, getJSON, sendWp, parseURL }
+export function takeoff(altStr: string) {
+  let alt = parseFloat(altStr)
+  if(Number.isNaN(alt)) {
+    Toast.error("输入非数字")
+    return
+  }
+  else {
+    postJSON('/takeoff', { alt }, true)
+  }
+}

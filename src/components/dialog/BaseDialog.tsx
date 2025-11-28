@@ -40,14 +40,14 @@ const BaseDialog: React.FC<PromptDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-lg w-80 p-6">
+      <div className="bg-white rounded-lg shadow-lg max-w-2xl min-w-xl w-fit p-6">
         <h2 className="text-lg font-bold mb-2">{title}</h2>
         <p className="mb-4 text-gray-700">{message}</p>
-        <div className="mb-4">
+        <div className="mb-4 flex-col">
           {
             Object.entries(children).map(([key, func], i) => {
               const ref = i == 0 ? inputRef : null;
-              return func(value[key], newV => setValue((v: any) => ({ ...v, [key]: newV })), ref)
+              return <div className='m-4'>{func(value[key], newV => setValue((v: any) => ({ ...v, [key]: newV })), ref)}</div>
             })
           }
         </div>
