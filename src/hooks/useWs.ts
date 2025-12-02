@@ -2,12 +2,12 @@ import { useRef } from 'react';
 import { parseURL } from '../utils';
 
 type EventCallback<T> = (event: T) => void;
-
+type CloseCallback = () => void;
 
 // 全局单例
 let wsInstance: WebSocket | null = null;
 let messageCallbacks: EventCallback<Record<string, any>>[] = [];
-let closeCallbacks: EventCallback<Record<string, any>>[] = [];
+let closeCallbacks: CloseCallback[] = [];
 
 // 连接
 function connect(url: string): void {
@@ -15,16 +15,21 @@ function connect(url: string): void {
   if (wsInstance) {
     wsInstance.close();
   }
-  wsInstance = new window.WebSocket(url);
+  try {
+    wsInstance = new window.WebSocket(url);
+    wsInstance.onmessage = (event: MessageEvent) => {
+      const data = JSON.parse(event.data)
+      messageCallbacks.forEach(cb => cb(data));
+    };
 
-  wsInstance.onmessage = (event: MessageEvent) => {
-    const data = JSON.parse(event.data)
-    messageCallbacks.forEach(cb => cb(data));
-  };
-
-  wsInstance.onclose = (event: CloseEvent) => {
-    closeCallbacks.forEach(cb => cb(event))
+    wsInstance.onclose = () => {
+      closeCallbacks.forEach(cb => cb())
+    }
   }
+  catch(e) {
+    closeCallbacks.forEach(cb => cb())
+  }
+  
 }
 
 // 关闭
@@ -44,7 +49,7 @@ function onMessage(cb: EventCallback<Record<string, any>>): () => void {
   };
 }
 
-function onClose(cb: EventCallback<Record<string, any>>): () => void {
+function onClose(cb: CloseCallback): () => void {
   closeCallbacks.push(cb);
   // 返回取消注册函数
   return () => {
@@ -53,7 +58,7 @@ function onClose(cb: EventCallback<Record<string, any>>): () => void {
 }
 
 function sendMessage(data: any) {
-    wsInstance && wsInstance.send(data)
+  wsInstance && wsInstance.send(data)
 }
 
 // Hook 返回同一个实例
@@ -70,6 +75,6 @@ export function useWS() {
     close: closeRef.current,
     onMessage: onMessageRef.current,
     onClose: onCloseRef.current,
-    send: sendRef.current 
+    send: sendRef.current
   };
 }

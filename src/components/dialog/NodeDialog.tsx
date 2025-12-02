@@ -18,7 +18,7 @@ export default async function promptNode(cfg: any) {
       childCfg.filter(v => (!!v && v.value != undefined)).forEach(({ value, topic, title }: any) => {
         defaultValue = { ...defaultValue, [topic]: value }
         _c[topic] = (value1: boolean, onChange: any) => (
-          <label className="label">
+          <label className="label min-w-xs max-w-full">
             <input type="checkbox" checked={value1} onChange={(e) => onChange(e.target.checked)} className="toggle" />
             {title}
           </label>

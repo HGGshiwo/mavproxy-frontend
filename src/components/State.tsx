@@ -48,9 +48,10 @@ const mySort = (arr: any[]) => arr.sort((a, b) => {
 });
 
 export default function State() {
-  const [state, setState] = useState<Record<string, any>>({ connected: false })
+  const DEFAULT_STATE = { connected: false }
+  const [state, setState] = useState<Record<string, any>>(DEFAULT_STATE)
   // setState({conncected: false})
-  const { onMessage } = useWS()
+  const { onMessage, onClose } = useWS()
   useEffect(() => {
     onMessage((data) => {
       if(data.type != "state") return
@@ -60,6 +61,10 @@ export default function State() {
         }
         return { ...prev, ...data }
       })
+    })
+
+    onClose(()=>{
+      setState(DEFAULT_STATE)
     })
   }, [])
 

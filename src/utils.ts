@@ -69,3 +69,26 @@ export function takeoff(altStr: string) {
     postJSON('/takeoff', { alt }, true)
   }
 }
+
+export function copyToClipboard(text: string) {
+  if (navigator.clipboard) {
+    return navigator.clipboard.writeText(text);
+  } else {
+    // 兼容旧浏览器
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return Promise.resolve();
+    } catch (err) {
+      document.body.removeChild(textarea);
+      return Promise.reject(err);
+    }
+  }
+}

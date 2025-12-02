@@ -6,7 +6,7 @@ const WpTable = () => {
   const [mission, setMission] = useState([])
   const [cur, setCur] = useState(0)
 
-  const { onMessage } = useWS()
+  const { onMessage, onClose } = useWS()
 
   useEffect(() => {
     onMessage((data: Record<string, any>) => {
@@ -18,11 +18,13 @@ const WpTable = () => {
         setCur(data.cur)
       }
     })
+
+    onClose(()=>setMission([]))
   }, [])
 
   return (
     <div className="overflow-x-auto" >
-      <table className="table min-w-auto" style={{ maxWidth: "1500px" }}>
+      <table className="table min-w-auto table-pin-rows" style={{ maxWidth: "1500px" }}>
         <thead>
           <tr>
             {columns.map((col) => (

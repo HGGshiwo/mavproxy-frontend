@@ -2,8 +2,8 @@ import { useEffect } from "react"
 import Button from "./components/Button"
 import { useWS } from "./hooks/useWs"
 import prompt from "./components/dialog/PromptDialog"
-import { postJSON, getJSON, sendWp, setMode, parseURL } from "./utils"
-import { ToastContainer } from "./components/Toast"
+import { postJSON, getJSON, sendWp, setMode, parseURL, copyToClipboard } from "./utils"
+import { Toast, ToastContainer } from "./components/Toast"
 import State from "./components/State"
 import WpTable from "./components/tab/TabWp"
 import { showPipVideo } from "./components/Video"
@@ -16,6 +16,17 @@ function App() {
   const { send, connect } = useWS()
   useEffect(() => {
     connect('/ws')
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // 页面变为可见，重新连接
+        connect('/ws');
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [])
 
 
@@ -35,7 +46,8 @@ function App() {
     { click: () => postJSON("/stop_record", {}, true), text: "结束录制" },
     { click: () => openParamsModal(), text: "设置参数" },
     { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" },
-    { click: () => promptNode({ message: "节点控制" }), text: "节点控制" }
+    { click: () => promptNode({ message: "节点控制" }), text: "节点控制" },
+    { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" }
   ]
 
   const tabConfig = [
