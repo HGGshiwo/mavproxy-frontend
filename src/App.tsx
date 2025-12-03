@@ -37,6 +37,7 @@ function App() {
     { click: () => setMode('LAND'), text: "降落" },
     { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "return")), text: "返航(可加航点)" },
     { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "land")), text: "降落(可加航点)" },
+    { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "set_waypoint")), text: "设置航点" },
     { click: () => setMode('LOITER'), text: "悬停" },
     { click: () => setMode('GUIDED'), text: "guided" },
     { click: () => postJSON(`/arm`, {}, true), text: "解锁" },

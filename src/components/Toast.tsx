@@ -32,6 +32,7 @@ class ToastManager {
   }
 
   notify(type: ToastType, message: string, duration = 3000) {
+    message = message == null ? "No Data" : message.toString()
     const msg: ToastMessage = {
       id: ++this.id,
       type,

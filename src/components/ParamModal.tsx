@@ -5,9 +5,10 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { getJSON } from "../utils";
+import { getJSON, postJSON } from "../utils";
 import ReactDOM from "react-dom/client";
 import { useWS } from "../hooks/useWs";
+import { Toast } from "./Toast";
 
 // 原始参数类型
 export type ParamItem = {
@@ -220,7 +221,7 @@ const ParamsModal = forwardRef<ParamsModalHandle, Props>(
       setModalOpen(open);
     }, [open]);
 
-    const { send } = useWS();
+    useWS();
 
     // 获取数据
     useEffect(() => {
@@ -291,11 +292,22 @@ const ParamsModal = forwardRef<ParamsModalHandle, Props>(
 
     // 确认
     const handleConfirm = () => {
-      Object.entries(updateData).forEach(([name, value]) => {
-        send(`param set ${name.toUpperCase()} ${value}`);
-      });
-      setModalOpen(false);
-      onClose?.();
+      Promise.all(Object.entries(updateData).map(([name, value]) => {
+        return postJSON("/set_param", { name, value })
+      }))
+        .then(res => {
+          const out = res.filter((r: any) => r["msg"] != "OK")
+          if (out.length == 0) {
+            Toast.info("OK")
+          }
+          else {
+            Toast.error(out.toString())
+          }
+        }, err => Toast.error(err.toString()))
+        .finally(() => {
+          setModalOpen(false);
+          onClose?.();
+        });
     };
 
     // 侧边栏数据
