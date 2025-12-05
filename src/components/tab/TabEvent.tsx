@@ -9,15 +9,15 @@ const TabEvent = () => {
 
   useEffect(() => {
     onMessage((data: Record<string, any>) => {
-      if (data.type != "state") {
-        const d = new Date()
-        const fill0 = (n: any) => n.toString().padStart(2, '0')
-        const time = `${fill0(d.getHours())}:${fill0(d.getMinutes())}:${fill0(d.getSeconds())}`
-        setEvent(e => ([{ data: JSON.stringify(data), time, type: data.type }, ...e]))
+      if (data.type == "state" && data.event != undefined) {
+        setEvent(data.event.sort((a: any, b: any) => (a.time < b.time) ? 1 : -1).map((d: any) => {
+          const { time, type, ..._d } = d
+          return { ...d, data: JSON.stringify(_d) }
+        }))
       }
     })
 
-    onClose(()=>setEvent([]))
+    onClose(() => setEvent([]))
   }, [])
 
   return (

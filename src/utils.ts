@@ -55,7 +55,7 @@ export function setMode (mode: string) {
 
 export function sendWp(wp: string | null, type: "return" | "land" | "set_waypoint") {
   if (wp == null) return;
-  wp = wp.replace(/[^0-9\[\]\,\.]/g, "");
+  wp = wp.replace(/[^0-9\[\]\,\.-]/g, "");
   postJSON(`/${type}`, { waypoint: JSON.parse(wp) }, true)
 }
 
