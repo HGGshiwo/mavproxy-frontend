@@ -8,6 +8,8 @@ export function parseURL(url: string, ws=false) {
     url = `${protocal}://${base_url}${url}`
   } else if (import.meta.env.MODE === 'production') {
     // 生产环境
+    const protocal = ws ? "ws" : "http"
+    url = `${protocal}://${window.location.host}${url}`
   }
   return url
 }

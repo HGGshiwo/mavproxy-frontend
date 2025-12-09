@@ -12,6 +12,7 @@ let closeCallbacks: CloseCallback[] = [];
 // 连接
 function connect(url: string): void {
   url = parseURL(url, true)
+  console.log(`try to connect to ${url}`)
   if (wsInstance) {
     wsInstance.close();
   }
@@ -27,6 +28,7 @@ function connect(url: string): void {
     }
   }
   catch(e) {
+    console.error(e)
     closeCallbacks.forEach(cb => cb())
   }
   
