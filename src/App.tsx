@@ -11,6 +11,7 @@ import { openParamsModal } from "./components/ParamModal"
 import TabEvent from "./components/tab/TabEvent"
 import promptNode from "./components/dialog/NodeDialog"
 import { takeoff } from "./utils"
+import promptGimbal from "./components/dialog/GimbalDialog"
 
 function App() {
   const { send, connect } = useWS()
@@ -48,7 +49,8 @@ function App() {
     { click: () => openParamsModal(), text: "设置参数" },
     { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" },
     { click: () => promptNode({ message: "节点控制" }), text: "节点控制" },
-    { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" }
+    { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" },
+    { click: () => promptGimbal({ message: "云台控制" }), text: "云台控制" },
   ]
 
   const tabConfig = [
