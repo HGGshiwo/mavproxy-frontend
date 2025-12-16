@@ -25,7 +25,7 @@ const exclude = ["radio_noise", "radio_remnoise", "radio_rssi", "type", "radio_e
   "vehicle_agl", "wp_total", "wp_cur", "wp_bearing", "wp_distance", "wp_etr", "link_lost", "link_count", "compid",
   "gps2_error", "gps2_fix_type", "gps2_hdop", "gps2_nsats", "lat", "lon", "sysid", "ekf_error", "error", "flight_time",
   "gps_error", "params_receive", "params_total", "aspd_error", "alt_error", "battery_remain", "battery_voltage", "agl_alt",
-  "wind_direction", "wind_speed", "throttle", "air_speed", "event", "vfr_hud_heading"
+  "wind_direction", "wind_speed", "throttle", "air_speed", "event", "vfr_hud_heading", "waypoint"
 ]
 
 const mySort = (arr: any[]) => arr.sort((a, b) => {

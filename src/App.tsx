@@ -52,10 +52,11 @@ function App() {
     { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" },
     { click: () => promptGimbal({ message: "云台控制" }), text: "云台控制" },
   ]
-
+  
   const tabConfig = [
-    { comp: <WpTable />, name: "航点数据" },
-    { comp: <TabEvent />, name: "事件浏览" }
+    { comp: <WpTable getData={(data: any) => data.mission_data} getIdx={(data: any) => data.type == "event" && data.event == "progress" ? data.cur : undefined} />, name: "航点数据" },
+    { comp: <TabEvent />, name: "事件浏览" },
+    { comp: <WpTable getData={(data: any) => data.waypoint.map((item: any) => ({ lon: item[0], lat: item[1], alt: item[2] }))} />, name: "避障航点" }
   ]
   return (
     <>

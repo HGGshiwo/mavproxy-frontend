@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWS } from "../../hooks/useWs";
 
-const WpTable = () => {
+const WpTable = ({ getData, getIdx }: any) => {
   const columns = ["num", "command", "lat", "lon", "alt"]
   const [mission, setMission] = useState([])
   const [cur, setCur] = useState(0)
@@ -10,16 +10,24 @@ const WpTable = () => {
 
   useEffect(() => {
     onMessage((data: Record<string, any>) => {
-      if (data.mission_data) {
-        setMission(data.mission_data)
+      const out = getData(data)
+      if (out != undefined) {
+        setMission(out)
         setCur(0)
       }
-      if (data.type == "event" && data.event == "progress") {
-        setCur(data.cur)
+      const idx = getIdx?.(data);
+      if (idx != undefined) {
+        setCur(idx)
       }
+      // if (data.mission_data) {
+
+      // }
+      // if (data.type == "event" && data.event == "progress") {
+      //   setCur(data.cur)
+      // }
     })
 
-    onClose(()=>setMission([]))
+    onClose(() => setMission([]))
   }, [])
 
   return (
