@@ -20,7 +20,7 @@ export default async function promptDetect(cfg: any) {
           <legend className="fieldset-legend">类型</legend>
           <select value={value1} onChange={(e) => onChange(e.target.value)} className="select">
             <option>smoke</option>
-            <option>nohardhead</option>
+            <option>nohardhat</option>
           </select>
         </fieldset>
       ),
