@@ -1,4 +1,4 @@
-import { getJSON, postJSON } from '../../utils'
+import { getJSON, handleInputChange, postJSON } from '../../utils'
 import { Toast } from '../Toast'
 import { openPrompt } from './BaseDialog'
 
@@ -6,20 +6,7 @@ export default async function promptGimbal(cfg: any) {
   let child: any = {}
   let defaultValue: any = {}
   
-  const handleInputChange = (e: any, setInputValue: any) => {
-    const value = e.target.value;
-    // 保留纯负号
-    if (value === '-') {
-      setInputValue('-');
-      return;
-    }
-    // 优化：避免步进时出现 "-0"（可选）
-    if (value === '-0') {
-      setInputValue('0');
-      return;
-    }
-    setInputValue(value);
-  };
+
 
   return getJSON("/get_gimbal")?.then(async (res: any) => {
     if (res.status != "success") {

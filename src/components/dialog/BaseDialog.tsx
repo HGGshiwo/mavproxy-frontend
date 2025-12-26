@@ -47,7 +47,9 @@ const BaseDialog: React.FC<PromptDialogProps> = ({
           {
             Object.entries(children).map(([key, func], i) => {
               const ref = i == 0 ? inputRef : null;
-              return <div className='m-4'>{func(value[key], newV => setValue((v: any) => ({ ...v, [key]: newV })), ref)}</div>
+              return <div className='m-4'>
+                {func(value[key], newV => setValue((v: any) => ({ ...v, [key]: newV })), ref)}
+              </div>
             })
           }
         </div>

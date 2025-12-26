@@ -6,14 +6,20 @@ const TabEvent = () => {
   const [event, setEvent] = useState<any[]>([])
 
   const { onMessage, onClose } = useWS()
-
+  const merge_event = (data: any[]) => {
+    console.log(1233, data)
+    return data.sort((a: any, b: any) => (a.time < b.time) ? 1 : -1).map((d: any) => {
+      const { time, type, ..._d } = d
+      return { ...d, data: JSON.stringify(_d) }
+    })
+  }
   useEffect(() => {
     onMessage((data: Record<string, any>) => {
       if (data.type == "state" && data.event != undefined) {
-        setEvent(data.event.sort((a: any, b: any) => (a.time < b.time) ? 1 : -1).map((d: any) => {
-          const { time, type, ..._d } = d
-          return { ...d, data: JSON.stringify(_d) }
-        }))
+        setEvent(merge_event(data.event))
+      }
+      if (data.type == "event") {
+        setEvent(e => ([...merge_event([data]), ...e]))
       }
     })
 

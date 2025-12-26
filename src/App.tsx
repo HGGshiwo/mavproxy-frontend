@@ -12,6 +12,7 @@ import TabEvent from "./components/tab/TabEvent"
 import promptNode from "./components/dialog/NodeDialog"
 import { takeoff } from "./utils"
 import promptGimbal from "./components/dialog/GimbalDialog"
+import promptDetect from "./components/dialog/DetectDialog"
 
 function App() {
   const { send, connect } = useWS()
@@ -36,9 +37,9 @@ function App() {
     { click: () => prompt({ message: "输入起飞高度" }).then(alt => takeoff(alt)), text: "起飞" },
     { click: () => setMode('RTL'), text: "返航" },
     { click: () => setMode('LAND'), text: "降落" },
-    { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "return")), text: "返航(可加航点)" },
-    { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "land")), text: "降落(可加航点)" },
-    { click: () => prompt({ message: "输入航点" }).then(res => sendWp(res, "set_waypoint")), text: "设置航点" },
+    { click: () => prompt({ message: "输入航点(要求加起飞点)" }).then(res => sendWp(res, "return")), text: "返航(可加航点)" },
+    { click: () => prompt({ message: "输入航点(要求加起飞点)" }).then(res => sendWp(res, "land")), text: "降落(可加航点)" },
+    { click: () => prompt({ message: "输入航点(要求加起飞点)" }).then(res => sendWp(res, "set_waypoint")), text: "设置航点" },
     { click: () => setMode('LOITER'), text: "悬停" },
     { click: () => setMode('GUIDED'), text: "guided" },
     { click: () => postJSON(`/arm`, {}, true), text: "解锁" },
@@ -51,12 +52,22 @@ function App() {
     { click: () => promptNode({ message: "节点控制" }), text: "节点控制" },
     { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" },
     { click: () => promptGimbal({ message: "云台控制" }), text: "云台控制" },
+    { click: () => promptDetect({ message: "检测控制" }), text: "开始检测" },
+    { click: () => postJSON("/stop_detect", {}, true), text: "停止检测" },
   ]
-  
+  const getIdx = (data: any) => {
+    if (data.type == "event" && data.event == "progress") {
+      return data.cur
+    }
+    else if(data.type == "state" && data.wp_idx != undefined) {
+      return data.wp_idx
+    }
+    return undefined
+  }
   const tabConfig = [
-    { comp: <WpTable getData={(data: any) => data.mission_data} getIdx={(data: any) => data.type == "event" && data.event == "progress" ? data.cur : undefined} />, name: "航点数据" },
+    { comp: <WpTable getData={(data: any) => data.mission_data} getIdx={getIdx} />, name: "航点数据" },
     { comp: <TabEvent />, name: "事件浏览" },
-    { comp: <WpTable getData={(data: any) => data.waypoint.map((item: any) => ({ lon: item[0], lat: item[1], alt: item[2] }))} />, name: "避障航点" }
+    { comp: <WpTable getData={(data: any) => data.waypoint?.map((item: any) => ({ lon: item[0], lat: item[1], alt: item[2] }))} />, name: "避障航点" }
   ]
   return (
     <>
