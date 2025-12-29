@@ -51,6 +51,7 @@ function App() {
     { click: () => prompt({ message: "拉流地址" }).then(res => res && showPipVideo({ src: parseURL(`/${res}`), type: "image" })), text: "开始拉流" },
     { click: () => promptNode({ message: "节点控制" }), text: "节点控制" },
     { click: () => getJSON("/get_gps")?.then(({ msg }: any) => { copyToClipboard(msg); Toast.info("已拷贝到剪贴板") }), text: "获取GPS" },
+    { click: () => getJSON("/get_gpsv2")?.then(({ msg }: any) => { copyToClipboard(JSON.stringify(msg)); Toast.info("已拷贝到剪贴板") }), text: "获取GPSv2" },
     { click: () => promptGimbal({ message: "云台控制" }), text: "云台控制" },
     { click: () => promptDetect({ message: "检测控制" }), text: "开始检测" },
     { click: () => postJSON("/stop_detect", {}, true), text: "停止检测" },
