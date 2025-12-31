@@ -1,6 +1,6 @@
 import { Toast } from "./components/Toast";
-// const base_url = "localhost:8000"
-const base_url = "192.168.1.198:8000"
+const base_url = "localhost:8000"
+// const base_url = "192.168.1.198:8000"
 
 export function parseURL(url: string, ws = false) {
   if (import.meta.env.MODE === 'development') {
