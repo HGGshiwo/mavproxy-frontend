@@ -59,6 +59,7 @@ function App() {
     { click: () => postJSON("/stop_detect", {}, true), text: "停止检测" },
     { click: () => postJSON("/start_planner", {}, true), text: "启动避障" },
     { click: () => postJSON("/stop_planner", {}, true), text: "关闭避障" },
+    { click: () => postJSON("/reboot_fcu", {}, true), text: "重启飞控" },
   ]
   const getIdx = (data: any) => {
     if (data.type == "event" && data.event == "progress") {

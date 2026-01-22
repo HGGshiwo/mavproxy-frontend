@@ -301,9 +301,9 @@ const ParamsModal = forwardRef<ParamsModalHandle, Props>(
             Toast.info("OK")
           }
           else {
-            Toast.error(out.toString())
+            Toast.error(JSON.stringify(out))
           }
-        }, err => Toast.error(err.toString()))
+        }, err => Toast.error(JSON.stringify(err)))
         .finally(() => {
           setModalOpen(false);
           onClose?.();
