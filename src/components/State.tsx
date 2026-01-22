@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useWS } from "../hooks/useWs"
+import { Toast } from "./Toast";
 
 const keyMap: Record<string, any> = {
   "connected": {
@@ -54,16 +55,21 @@ export default function State() {
   const { onMessage, onClose } = useWS()
   useEffect(() => {
     onMessage((data) => {
-      if(data.type != "state") return
-      setState(prev => {
-        if (data.link_down != undefined) {
-          delete prev["connected"]
-        }
-        return { ...prev, ...data }
-      })
+      if (data.type == "error") {
+        Toast.error(data.error)
+      }
+      else if (data.type == "state") {
+        setState(prev => {
+          if (data.link_down != undefined) {
+            delete prev["connected"]
+          }
+          return { ...prev, ...data }
+        })
+      }
+
     })
 
-    onClose(()=>{
+    onClose(() => {
       setState(DEFAULT_STATE)
     })
   }, [])

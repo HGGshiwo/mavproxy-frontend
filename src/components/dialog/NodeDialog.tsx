@@ -47,6 +47,10 @@ export default async function promptNode(cfg: any) {
   }).then(res => Promise.all(
     topic_cfg.map(({ topic, type }: any) => {
       let value = res[topic]
+      if (value == undefined) {
+        return
+      }
+      console.log(topic, value)
       if (type == "number") {
         let float = Number(value)
         if (Number.isNaN(float)) {
@@ -56,5 +60,8 @@ export default async function promptNode(cfg: any) {
       }
       postJSON(`/set_ros_param`, { name: topic, value })
     })
-  ).then(() => Toast.info("OK"), (res: any) => Toast.error(res)))
+  ).then(() => Toast.info("OK"), (res: any) => {
+    console.log(res)
+    Toast.error(res)
+  }))
 }
