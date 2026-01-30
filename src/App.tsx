@@ -13,6 +13,7 @@ import promptNode from "./components/dialog/NodeDialog"
 import { takeoff } from "./utils"
 import promptGimbal from "./components/dialog/GimbalDialog"
 import promptDetect from "./components/dialog/DetectDialog"
+import promptExposure from "./components/dialog/ExposureDialog"
 
 function App() {
   const { send, connect } = useWS()
@@ -60,6 +61,7 @@ function App() {
     { click: () => postJSON("/start_planner", {}, true), text: "启动避障" },
     { click: () => postJSON("/stop_planner", {}, true), text: "关闭避障" },
     { click: () => postJSON("/reboot_fcu", {}, true), text: "重启飞控" },
+    { click: () => promptExposure({ message: "相机控制" }), text: "相机控制" },
   ]
   const getIdx = (data: any) => {
     if (data.type == "event" && data.event == "progress") {
